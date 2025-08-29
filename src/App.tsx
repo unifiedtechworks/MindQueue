@@ -1,10 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
-import Queue from "./pages/Queue";
 import CreateTicket from "./pages/CreateTicket";
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '../amplify/data/resource';
+type Ticket = Schema['Ticket']['type'];
+import TicketList from "./components/organisms/TicketList";
+
+export const client = generateClient<Schema>();
+
 
 export default function App() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   const createTicket = (ticketData) => {
     const newTicket = {
@@ -22,9 +28,8 @@ export default function App() {
           <a href="/" className="text-indigo-400 hover:underline">Queue</a>
           <a href="/create" className="text-indigo-400 hover:underline">Create Ticket</a>
         </nav>
-
         <Routes>
-          <Route path="/" element={<Queue tickets={tickets} />} />
+          <Route path="/" element={<TicketList />} />
           <Route path="/create" element={<CreateTicket onCreate={createTicket} />} />
         </Routes>
       </div>

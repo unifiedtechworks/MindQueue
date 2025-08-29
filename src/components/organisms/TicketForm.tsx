@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { client } from '../../App'; // wherever you declared createClient
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from '../../../amplify/data/resource';
 
 function TicketForm({ onCreate }) {
   const [form, setForm] = useState({
@@ -14,28 +17,27 @@ function TicketForm({ onCreate }) {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const tagsArray = form.tags.split(',').map(tag => tag.trim()).filter(Boolean);
+const { title, description } = form;
 
-    onCreate({
-      title: form.title || 'Untitled Ticket',
-      description: form.description,
-      priority: form.priority,
-      assignee: form.assignee,
-      tags: tagsArray,
-      status: 'Open',
-    });
+const newTicket = {
+  title,
+  description,
+  status: 'open',
+  createdBy: 'dev-user',
+};
 
-    setForm({
-      title: '',
-      description: '',
-      priority: 'Medium',
-      assignee: '',
-      tags: '',
-    });
-  };
+
+  const result = await await client.models.Ticket.create(newTicket);
+
+  if (result?.data) {
+    console.log("Ticket created:", result.data);
+    // optionally notify parent component to refresh ticket list
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-800 p-4 rounded shadow-md space-y-4">
@@ -93,7 +95,7 @@ function TicketForm({ onCreate }) {
         type="submit"
         className="w-full bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded font-semibold"
       >
-        ➕ Create Ticket
+         Create Ticket
       </button>
     </form>
   );
