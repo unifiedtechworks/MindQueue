@@ -1,12 +1,19 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import type { Schema } from "../../../amplify/data/resource";
 
-function TicketCard({ ticket, onEdit }) {
+type Ticket = Schema['Ticket']['type'];
+
+type TicketCardProps = {
+  ticket: Ticket;
+  onEdit: (ticket: Ticket) => void;
+};
+
+
+function TicketCard({ ticket, onEdit }: TicketCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedTicket, setEditedTicket] = useState(ticket);
-  const [chatter, setChatter] = useState([]);
-  const [newComment, setNewComment] = useState("");
-
   const toggleCard = () => setIsOpen(prev => !prev);
   const handleEditToggle = () => setIsEditing(prev => !prev);
 
@@ -15,24 +22,22 @@ function TicketCard({ ticket, onEdit }) {
     setIsEditing(false);
   };
 
+  const navigate = useNavigate(); // ⬅️ INSIDE your component
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedTicket({ ...editedTicket, [name]: value });
   };
-  
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      const timestamped = `${new Date().toLocaleString()} — ${newComment.trim()}`;
-      setChatter(prev => [...prev, timestamped]);
-      setNewComment("");
-    }
-  };
 
   return (
+    
     <div className="bg-gray-800 text-white rounded-md shadow-md p-4 mb-4">
-      <div onClick={toggleCard} className="text-xl font-bold text-indigo-400 cursor-pointer">
-        {ticket.title}
-      </div>
+<div
+  onClick={() => navigate(`/ticket/${ticket.id}`)}
+  className="text-xl font-bold text-indigo-400 cursor-pointer hover:underline"
+>
+  {ticket.title}
+</div>
 
       {isOpen && (
         <div className="mt-4 space-y-3">
@@ -43,7 +48,7 @@ function TicketCard({ ticket, onEdit }) {
                 <input
                   className="w-full bg-gray-800 p-2 rounded"
                   name="title"
-                  value={editedTicket.title}
+                  value={editedTicket.title ?? ""}
                   onChange={handleChange}
                 />
               </div>
@@ -54,7 +59,7 @@ function TicketCard({ ticket, onEdit }) {
                   className="w-full bg-gray-800 p-2 rounded"
                   name="description"
                   rows={3}
-                  value={editedTicket.description}
+                  value={editedTicket.description ?? ""}
                   onChange={handleChange}
                 />
               </div>
@@ -64,7 +69,7 @@ function TicketCard({ ticket, onEdit }) {
                 <select
                   className="w-full bg-gray-800 p-2 rounded"
                   name="priority"
-                  value={editedTicket.priority}
+                  value={editedTicket.priority ?? ""}
                   onChange={handleChange}
                 >
                   <option value="">Select priority</option>
@@ -80,7 +85,7 @@ function TicketCard({ ticket, onEdit }) {
                   type="date"
                   className="w-full bg-gray-800 p-2 rounded"
                   name="dueDate"
-                  value={editedTicket.dueDate}
+                  value={editedTicket.dueDate ?? ""}
                   onChange={handleChange}
                 />
               </div>
@@ -105,13 +110,13 @@ function TicketCard({ ticket, onEdit }) {
               </div>
 
               <div className="bg-gray-700 p-3 rounded grid grid-cols-2 gap-4">
-                <p className="text-sm text-gray-300">🚩 <strong>Priority:</strong> {ticket.priority}</p>
-                <p className="text-sm text-gray-300">📅 <strong>Due:</strong> {ticket.dueDate}</p>
+                <p className="text-sm text-gray-300">🚩 <strong>Priority:</strong> {ticket.priority ?? ""}</p>
+                <p className="text-sm text-gray-300">📅 <strong>Due:</strong> {ticket.dueDate ?? ""}</p>
               </div>
 
               <div className="bg-gray-700 p-3 rounded">
                 <p className="text-sm text-gray-400">
-                  🕒 <strong>Created:</strong> {new Date(ticket.createdDate).toLocaleString()}
+                   {ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : "Unknown"}
                 </p>
               </div>
 
@@ -122,7 +127,7 @@ function TicketCard({ ticket, onEdit }) {
           )}
 
           {/* Chatter */}
-          <div className="mt-4 bg-gray-700 p-3 rounded">
+{/*          <div className="mt-4 bg-gray-700 p-3 rounded">
             <h4 className="text-indigo-300 font-semibold mb-2">Chatter</h4>
             <div className="space-y-2 mb-2 max-h-40 overflow-auto pr-1">
               {chatter.map((msg, i) => (
@@ -142,7 +147,7 @@ function TicketCard({ ticket, onEdit }) {
                 Post
               </button>
             </div>
-          </div>
+          </div>*/}
         </div>
       )}
     </div>

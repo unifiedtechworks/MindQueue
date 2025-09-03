@@ -3,10 +3,14 @@ import { useState } from "react";
 import CreateTicket from "./pages/CreateTicket";
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../amplify/data/resource';
-type Ticket = Schema['Ticket']['type'];
 import TicketList from "./components/organisms/TicketList";
+import TicketDetails from "./pages/TicketDetails.tsx";
+
+type Ticket = Schema['Ticket']['type'];
 
 export const client = generateClient<Schema>();
+
+
 
 
 export default function App() {
@@ -31,6 +35,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<TicketList />} />
           <Route path="/create" element={<CreateTicket onCreate={createTicket} />} />
+          <Route path="/ticket/:ticketId" element={<TicketDetails />} />
         </Routes>
       </div>
     </Router>
